@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<main>
+    <section class="form-container">
+        <form method="POST" action="{% url 'register' %}" class="register-form">
+            {% csrf_token %}
+            <h1>Register</h1>
+            <div class="form04ka">
+                <fieldset class="input-wrapper">
+                    <label for="username">Username:</label>
+                    <input type="text" required id="username" name="username" class="register-form-item">
+                </fieldset>
+                <fieldset class="input-wrapper">
+                    <label for="first_name">Name:</label>
+                    <input type="text" required id="first_name" name="first_name" class="register-form-item">
+                </fieldset>
+                <fieldset class="input-wrapper">
+                    <label for="last_name">Surname:</label>
+                    <input type="text" required id="last_name" name="last_name" class="register-form-item">
+                </fieldset>
+                <fieldset class="input-wrapper">
+                    <label for="email">Email:</label>
+                    <input type="email" required id="email" name="email" class="register-form-item">
+                </fieldset>
+                <fieldset class="input-wrapper">
+                    <label for="password">Password:</label>
+                    <input type="password" required id="password" name="password" class="register-form-item">
+                </fieldset>
+                <button type="submit"class="btn btn-secondary sublogbtn">Submit</button>
+            </div>
+        </form>
+    </section>
+</main>
+{% endblock %}
