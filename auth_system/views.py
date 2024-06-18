@@ -8,7 +8,7 @@ from .models import CustomUser
 
 def register_user(request):
     if request.user.is_authenticated:
-        return redirect("task-tracker:index")
+        return redirect("index")
     else:
         if request.method == 'POST':
             username = request.POST.get('username')
@@ -22,13 +22,13 @@ def register_user(request):
             user = authenticate(username=username, first_name=name, last_name=surname, email=email, password=password)
             login(request, user)
 
-            return redirect("task-tracker:index")
+            return redirect("index")
         else:
             return render(request, "auth_system/register.html")
 
 def login_user(request):
     if request.user.is_authenticated:
-        return redirect("task-tracker:index")
+        return redirect("index")
     else:
         if request.method == "POST":
             username = request.POST.get("username")
@@ -39,7 +39,7 @@ def login_user(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, ("You have been succesfully logged in"))
-                return redirect("task-tracker:index")
+                return redirect("index")
             else:
                 messages.error(request, ("There was an error logging in, try again!"))
                 return redirect("login")
@@ -51,7 +51,7 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, ("You were logged out"))
-    return redirect("task-tracker:index")
+    return redirect("index")
 
 def user_info(request, pk):
     if request.user.id == pk:

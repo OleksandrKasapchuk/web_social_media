@@ -2,6 +2,18 @@
 
 
 {% block content %}
+{% for post in posts %}
 
+	{% if post.media %}
+		<img src="{{post.media.url}}"  style="max-width: 500px;">
+	{% endif %}
 
+	<h2>{{ post.content }}</h2>
+	<h2>{{ post.user }}</h2>
+	<h2>{{ post.date_published }}</h2>
+	<a href="{% url 'post:delete_post' post.pk %}">Delete</a>
+	<a href="{% url 'post:update_post' post.pk %}">Update</a>
+	<br>
+	<br>
+{% endfor %}
 {% endblock %}

@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main>
-    <section class="form-container">
-        <form method="POST" action="{% url 'login' %}" class="login-form">
+
+<div class="row justify-content-center align-items-center full-screen">
+    <div class="col-lg-6 col-md-8 col-12 px-5">
+        <form method="POST" action="{% url 'login' %}">
             <h1>Login</h1>
             {% csrf_token %}
-            <div class="form04ka">
-                <fieldset class="input-wrapper">
-                    <label for="username">Username:</label>
-                    <input type="text" required id="username"  name="username" class="login-form-item">
-                </fieldset>
-                <fieldset class="input-wrapper">
-                    <label for="password">Password:</label>
-                    <input type="password" required id="password" name="password" class="login-form-item">
-                </fieldset>
-                <button type="submit" class="btn btn-secondary sublogbtn">Submit</button>
-                <a href="{% url 'register' %}" >Do not have any account?</a>
-            </div>
+            <section>
+                <label for="username">Username:</label>
+                <input type="text" required id="username"  name="username" class="form-control form-input">
+            </section>
+            
+            <section>
+                <label for="password">Password:</label>
+                <input type="password" required id="password" name="password" class="form-control form-input">
+            </section>
+            <button type="submit" class="sbmt-btn">Submit</button>
+            <a href="{% url 'register' %}" >Do not have any account?</a>
         </form>
-    </section>
-</main>
+    </div>
+</div>
 {% endblock %}

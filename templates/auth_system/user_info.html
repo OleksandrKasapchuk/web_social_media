@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<main>
-    <h1>User profile</h1>
-    <div class="form04ka ne_form04ka">
+<div class="row justify-content-center align-items-center full-screen">
+    <div class="col-lg-6 col-md-8 col-12 px-5">
+        <h1>User profile</h1>
+
         <ul class="user_infos">
             <li>Username: {{user.username}}</li><br>
             <li>Name: {{user.first_name}}</li><br>
@@ -12,5 +13,5 @@
             <li><a href="{% url 'edit-user' user.id %}">Edit profile</a></li>
         </ul>
     </div>
-</main>
+</div>
 {% endblock %}

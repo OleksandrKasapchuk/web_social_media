@@ -5,6 +5,7 @@ from auth_system.models import *
 class Post(models.Model):
 	content = models.TextField()
 	user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="posts")
+	media = models.FileField(upload_to="post_media/",null=True, blank=True)
 	date_published = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
