@@ -12,28 +12,39 @@ class Index(ListView):
 	template_name = "post_system/index.html"
 
 
-class PostCreateView(LoginRequiredMixin, CreateView):
-	model = Post
-	template_name = "form.html"
-	form_class = PostCreateForm
+class PostCreateView(LoginRequiredMixin, View):
+	def get(self, request, *args, **kwargs):
+		return render(
+			request,
+			"form.html",
+			context = {"form": PostCreateForm}
+		)
 
-	def form_valid(self, form):
-		form.instance.user = self.request.user
-		return super().form_valid(form)
-
-	def get_success_url(self) -> str:
-		return reverse_lazy("post:index")
-
+	def post(self, request, *args, **kwargs):
+		form = PostCreateForm(request.POST, request.FILES)
+		if form.is_valid():
+			post = form.save(commit=False)
+			post.user = self.request.user
+			post.save()
+			return redirect("post:index")
+		else:
+			pass
 
 class PostUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
 	model = Post
-	template_name = "form.html"
-	context_object_name = "post"
-	form_class = PostCreateForm
+	def get(self, request, pk, *args, **kwargs):
+		return render(
+			request,
+			"post_system/edit_post.html",
+			context={"post": Post.objects.get(pk=pk)}
+		)
 
-	def get_success_url(self) -> str:
-		return reverse_lazy("post:index")
-
+	def post(self, request, pk, *args, **kwargs):
+		post = Post.objects.get(pk=pk)
+		post.content = request.POST.get('content')
+		post.media = request.FILES.get('media')
+		post.save()
+		return redirect("post:index")
 
 class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 	model = Post

@@ -54,18 +54,16 @@ def logout_user(request):
     return redirect("index")
 
 def user_info(request, pk):
-    if request.user.id == pk:
-        try:
-            user = CustomUser.objects.get(id=pk)
-            context = {'user': user}
-            return render(request, 'auth_system/user_info.html', context=context)
-        except CustomUser.DoesNotExist:
-            return HttpResponse (
-                "User doesn't exist!",
-                status=404
-            )
-    else:
-        return HttpResponse ("Access denied", status=400)
+    try:
+        user = CustomUser.objects.get(id=pk)
+        context = {'user': user}
+        return render(request, 'auth_system/user_info.html', context=context)
+    except CustomUser.DoesNotExist:
+        return HttpResponse (
+            "User doesn't exist!",
+            status=404
+        )
+
 
 def edit_user(request, user_id):
     if request.user.id == user_id:
@@ -74,14 +72,14 @@ def edit_user(request, user_id):
             name = request.POST.get('first_name')
             surname = request.POST.get('last_name')
             email = request.POST.get('email')
-            phone_number = request.POST.get('phone_number')
+            avatar = request.FILES.get('avatar')
 
             user = CustomUser.objects.get(id=user_id)
             user.username=username 
             user.email=email
             user.first_name=name
             user.last_name=surname
-            user.phone_number=phone_number
+            user.avatar=avatar
             user.save()
 
             messages.success(request, "Profile info has been updated")

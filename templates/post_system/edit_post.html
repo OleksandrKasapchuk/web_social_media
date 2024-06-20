@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	<label for="media">Avatar:</label>
+	<input type="file" id="media" name="media" class="form-control form-input">
+	<img src="{{post.media.url}}" class="post-media">
+	<label for="content">Content:</label>
+	<input type="text" id="content" name="content" value="{{post.content}}">
+
+	<button type="submit">Submit</button>
+</form>
+
+{% endblock %}

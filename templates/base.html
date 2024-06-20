@@ -23,8 +23,10 @@
 				<li><a href="{% url 'login' %}">Login</a></li>
 			{% else %}
 				<li><a href="{% url 'logout' %}">Logout</a></li>
-				<li><a href="{% url 'user-info' user.id %}">Profile</a></li>
+				<li><a href="{% url 'user-info' request.user.pk %}">Profile</a></li>
+				<li><a href="#">Messages</a></li>
 			{% endif %}
+
 		</ul>
 	</nav>
 	

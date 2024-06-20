@@ -18,16 +18,36 @@ body {
 a, a:visited  {
 	text-decoration: none;
 	color: white;
+	display: inline-block;
 }
 .sidebar ul {
-	list-style-type: none;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
+ul {
+	list-style-type: none;
+}
 .sidebar > ul > li {
 	width: 100%;
 	height: 100px;
-	margin: 30px;
+	padding: 20px;
 	font-size: 24px;
+}
+li > a {
+	width: 100%;
+	height: 100%;
+}
+main {
+	margin:30px;
+}
+.avatar {
+	border-radius: 30px;
+	width: 150px;
+	height: 150px;
+	border: white solid 2px;
+}
+.post-media {
+	width: 250px;
+	height: 250px;
 }
