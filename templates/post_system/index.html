@@ -14,6 +14,26 @@
 	<a href="{% url 'post:delete_post' post.pk %}">Delete</a>
 	<a href="{% url 'post:update_post' post.pk %}">Update</a>
 	<br>
+	<h2>Comments</h2>
+	<form method="post">
+		{% csrf_token %}
+		{{form.as_p}}
+		<input type="hidden" name="post_pk" value="{{post.pk}}">
+		<button type="submit">Add comment</button>
+	</form>
+	<ul>
+		{% for comment in post.comments.all %}
+			<section class="comment-container">
+				<li>{{comment.content}}</li>
+				<li>{{comment.user}}</li>
+				<li>{{comment.date_published}}</li>
+				<br>
+				<a href="{% url 'post:update-comment' comment.pk %}">Update</a>
+				<a href="{% url 'post:delete-comment' comment.pk %}">Delete</a>
+			</section>
+		{% endfor %}
+	</ul>
+	<br>
 	<br>
 {% endfor %}
 {% endblock %}

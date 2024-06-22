@@ -6,10 +6,25 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .mixins import *
 from .forms import *
 
+
 class Index(ListView):
 	model = Post
 	context_object_name = "posts"
 	template_name = "post_system/index.html"
+	
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['form'] = CommentCreateForm
+		return context
+
+	def post(self,request, *args, **kwargs):
+		form = CommentCreateForm(request.POST)
+		if form.is_valid():
+			comment = form.save(commit=False)
+			comment.user = request.user
+			comment.post = Post.objects.get(pk=request.POST.get('post_pk'))
+			comment.save()
+		return redirect('post:index')
 
 
 class PostCreateView(LoginRequiredMixin, View):
@@ -30,6 +45,7 @@ class PostCreateView(LoginRequiredMixin, View):
 		else:
 			pass
 
+
 class PostUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
 	model = Post
 	def get(self, request, pk, *args, **kwargs):
@@ -45,6 +61,7 @@ class PostUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
 		post.media = request.FILES.get('media')
 		post.save()
 		return redirect("post:index")
+
 
 class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 	model = Post
@@ -63,18 +80,20 @@ class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 # 			Like.objects.create(comment=comment, user=request.user)
 # 		return redirect("task-tracker:task-details", dashboard_pk=self.kwargs['dashboard_pk'],pk=self.kwargs['task_pk'])
 	
-# class DeleteCommentView(LoginRequiredMixin,UserIsOwnerMixin,DeleteView):
-# 	model = Comment
-# 	template_name = "form.html"
+
+class DeleteCommentView(LoginRequiredMixin,UserIsOwnerMixin,DeleteView):
+	model = Comment
+	template_name = "form.html"
 	
-# 	def get_success_url(self) -> str:
-# 		return reverse_lazy("task-tracker:task-details",  kwargs={'dashboard_pk': self.kwargs['dashboard_pk'],"pk": self.kwargs['task_pk']})
+	def get_success_url(self) -> str:
+		return reverse_lazy("post:index")
 
-# class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
-# 	model = Comment
-# 	template_name = "form.html"
-# 	context_object_name = "comment"
-# 	form_class = CommentCreateForm
 
-# 	def get_success_url(self) -> str:
-# 		return reverse_lazy("task-tracker:task-details",  kwargs={'dashboard_pk': self.kwargs['dashboard_pk'],"pk": self.kwargs['task_pk']})
+class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
+	model = Comment
+	template_name = "form.html"
+	context_object_name = "comment"
+	form_class = CommentCreateForm
+
+	def get_success_url(self) -> str:
+		return reverse_lazy("post:index")
