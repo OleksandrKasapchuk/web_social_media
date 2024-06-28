@@ -8,6 +8,7 @@ urlpatterns = [
 	path('delete_post/<int:pk>', post_views.PostDeleteView.as_view(), name='delete_post'),
 	path('update-comment/<int:pk>', post_views.UpdateCommentView.as_view(), name='update-comment'),
 	path('delete-comment/<int:pk>', post_views.DeleteCommentView.as_view(), name='delete-comment'),
+	path('like/<int:pk>', post_views.LikeView.as_view(), name='like-post')
 ]
 
 app_name = 'post' 

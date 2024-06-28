@@ -58,7 +58,8 @@ class PostUpdateView(LoginRequiredMixin, UserIsOwnerMixin, UpdateView):
 	def post(self, request, pk, *args, **kwargs):
 		post = Post.objects.get(pk=pk)
 		post.content = request.POST.get('content')
-		post.media = request.FILES.get('media')
+		if request.FILES.get('media') != None:
+			post.media = request.FILES.get('media')
 		post.save()
 		return redirect("post:index")
 
@@ -70,15 +71,15 @@ class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 	def get_success_url(self) -> str:
 		return reverse_lazy("post:index")
 
-# class CommentLikeToggle(LoginRequiredMixin, View):
-# 	def post(self, request, *args, **kwargs) :
-# 		comment = get_object_or_404(Comment, pk=self.kwargs.get('pk'))
-# 		like_qs = Like.objects.filter(comment=comment, user=request.user)
-# 		if like_qs.exists():
-# 			like_qs.delete()
-# 		else:
-# 			Like.objects.create(comment=comment, user=request.user)
-# 		return redirect("task-tracker:task-details", dashboard_pk=self.kwargs['dashboard_pk'],pk=self.kwargs['task_pk'])
+class LikeView(LoginRequiredMixin, View):
+	def post(self, request, *args, **kwargs) :
+		post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
+		like_qs = Like.objects.filter(post=post, user=request.user)
+		if like_qs.exists():
+			like_qs.delete()
+		else:
+			Like.objects.create(post=post, user=request.user)
+		return redirect("post:index")
 	
 
 class DeleteCommentView(LoginRequiredMixin,UserIsOwnerMixin,DeleteView):

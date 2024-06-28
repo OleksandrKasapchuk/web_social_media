@@ -5,9 +5,11 @@
 {% block content %}
 <form method="post" enctype="multipart/form-data">
 	{% csrf_token %}
-	<label for="media">Avatar:</label>
-	<input type="file" id="media" name="media" class="form-control form-input">
-	<img src="{{post.media.url}}" class="post-media">
+	<label for="media">Edit post:</label>
+	<input type="file" id="media" name="media" class="form-control form-input" value="{{post.media.url}}">
+	{% if post.media %}
+		<img src="{{post.media.url}}" class="post-media">
+	{% endif %}
 	<label for="content">Content:</label>
 	<input type="text" id="content" name="content" value="{{post.content}}">
 

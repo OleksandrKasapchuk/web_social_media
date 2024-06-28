@@ -15,9 +15,10 @@ def register_user(request):
             name = request.POST.get('first_name')
             surname = request.POST.get('last_name')
             email = request.POST.get('email')
+            bio = request.POST.get('bio')
             password = request.POST.get('password')
             
-            new_user = CustomUser.objects.create_user(username=username, first_name=name, last_name=surname, email=email ,password=password)
+            new_user = CustomUser.objects.create_user(username=username, first_name=name, last_name=surname, email=email ,password=password, bio=bio)
             new_user.save()
             user = authenticate(username=username, first_name=name, last_name=surname, email=email, password=password)
             login(request, user)

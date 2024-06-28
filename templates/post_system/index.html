@@ -13,16 +13,16 @@
 	<h2>{{ post.date_published }}</h2>
 	<a href="{% url 'post:delete_post' post.pk %}">Delete</a>
 	<a href="{% url 'post:update_post' post.pk %}">Update</a>
-	<br>
-	<h2>Comments</h2>
+	<br><br>
+	<h2 onclick=commentFunc(id) id="{{post.pk}}"><span class="material-symbols-outlined">comment</span></h2>
 	<form method="post">
 		{% csrf_token %}
 		{{form.as_p}}
 		<input type="hidden" name="post_pk" value="{{post.pk}}">
 		<button type="submit">Add comment</button>
 	</form>
-	<ul>
-		{% for comment in post.comments.all %}
+	<ul id="comments{{post.pk}}" style="display:none;">
+		{% for comment in post.comments.all  %}
 			<section class="comment-container">
 				<li>{{comment.content}}</li>
 				<li>{{comment.user}}</li>
@@ -33,7 +33,23 @@
 			</section>
 		{% endfor %}
 	</ul>
+	<form action="{% url 'post:like-post' post.pk %}" method="post"> 
+		{% csrf_token %} 
+		<button type="submit" class="btn {% if request.user in post.likes.all %}btn-primary {% else %}btn-outline-primary{% endif %}">Like {{post.likes.count}}</button> 
+	</form>
 	<br>
 	<br>
+	
 {% endfor %}
+	<script>
+		function commentFunc(postId) {
+			const comments = document.getElementById("comments" + postId);
+
+			if (comments.style.display === "none") {
+				comments.style.display = "block";
+			} else {
+				comments.style.display = "none";
+			}
+		}
+	</script>
 {% endblock %}
