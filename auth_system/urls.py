@@ -8,5 +8,6 @@ urlpatterns = [
     path("login/", auth_views.login_user, name="login"),
     path("logout/", auth_views.logout_user, name="logout"),
     path("edit-user/<int:user_id>", auth_views.edit_user, name="edit-user"),
-    path("change-password/<int:user_id>", auth_views.change_password, name="change-password")
+    path("change-password/<int:user_id>", auth_views.change_password, name="change-password"),
+	path("toggle-follow/<int:pk>", auth_views.toggle_follow, name="toggle-follow"),
 ]

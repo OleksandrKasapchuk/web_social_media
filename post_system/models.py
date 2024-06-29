@@ -36,4 +36,4 @@ class Like(models.Model):
 		unique_together = ('user', 'post')
 
 	def __str__(self):
-		return f"{self.user} - {self.post}"
+		return f"{self.user}"

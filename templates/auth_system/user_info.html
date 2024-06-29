@@ -12,15 +12,26 @@
             {% load static %}
             <img src="{% static 'images/default_avatar.jpg' %}" class="avatar">
         {% endif %}
-        <li><h1>{{user.username}}</h1></li><br>
+        <li><h1>{{user.username}} Followers: <span id="followers-count">{{ user.followers.count }}</span> Following: <span id="following-count">{{ user.following.count }}</span></h1></li><br>
         <li>Name: {{user.first_name}}</li><br>
         <li>Surname: {{user.last_name}}</li><br>
         {% if user.bio %}
             <li><p>{{user.bio}}</p></li><br>
-        {% endif %}
+        {% endif %} 
         
         {% if request.user == user %}
             <li><a href="{% url 'edit-user' user.id %}">Edit profile</a></li>
+        {% else %}
+            <form id="follow-form" method="post" action="{% url 'toggle-follow' user.pk %}">
+                {% csrf_token %}
+                <button type="submit" id="follow-button">
+                    {% if user.pk in following %}
+                        Unfollow
+                    {% else %}
+                        Follow
+                    {% endif %}
+                </button>
+            </form>
         {% endif %}
     </ul>
 
@@ -31,4 +42,35 @@
         {% endfor %}
     </ul>
 </div>
+<script>
+    document.getElementById('follow-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+    
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                const followButton = document.getElementById('follow-button');
+                const followersCount = document.getElementById('followers-count');
+                const followingCount = document.getElementById('following-count');
+    
+                followButton.textContent = data.following ? 'Unfollow' : 'Follow';
+                followersCount.textContent = data.followers_count;
+                followingCount.textContent = data.following_count;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 {% endblock %}

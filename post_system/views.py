@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from .models import *
 from django.views.generic import View, ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from .mixins import *
 from .forms import *
 
@@ -71,16 +72,25 @@ class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 	def get_success_url(self) -> str:
 		return reverse_lazy("post:index")
 
+
 class LikeView(LoginRequiredMixin, View):
-	def post(self, request, *args, **kwargs) :
-		post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
-		like_qs = Like.objects.filter(post=post, user=request.user)
-		if like_qs.exists():
-			like_qs.delete()
-		else:
-			Like.objects.create(post=post, user=request.user)
-		return redirect("post:index")
-	
+    def post(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
+        like_qs = Like.objects.filter(post=post, user=request.user)
+        
+        if like_qs.exists():
+            like_qs.delete()
+            liked = False
+        else:
+            Like.objects.create(post=post, user=request.user)
+            liked = True
+        
+        data = {
+            'liked': liked,
+            'likes_count': post.likes.count()
+        }
+        return JsonResponse(data)
+
 
 class DeleteCommentView(LoginRequiredMixin,UserIsOwnerMixin,DeleteView):
 	model = Comment

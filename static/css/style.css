@@ -9,11 +9,16 @@ body {
 	flex-direction: row;
 	width: 100vw;
 }
-
+.logo {
+	font-family: "Playwrite IT Moderna", cursive;
+	font-size: 24px;
+	width: 100%;
+	margin-bottom: 50px;
+}
 .sidebar {
-	border-right: 2px solid white;
+	border-right: 2px solid rgba(255, 255, 255, 0.1);
 	height: 100%;
-	width: 400px;
+	width: 350px;
 	display: inline-block;
 	position: fixed;
     top: 0;
@@ -29,15 +34,20 @@ a, a:visited  {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	padding: 20px;
 }
 ul {
 	list-style-type: none;
 }
-.sidebar > ul > li {
+.sidebar-item {
 	width: 100%;
-	height: 100px;
-	padding: 20px;
-	font-size: 24px;
+	padding: 10px;
+	border-radius: 10px;
+	font-size: 18px;
+	transition: 0.5s;
+}
+.sidebar-item:hover {
+	background-color: rgba(255, 255, 255, 0.1);
 }
 li > a {
 	width: 100%;
@@ -54,10 +64,35 @@ main {
 	border: white solid 2px;
 }
 .post-media {
-	width: 250px;
-	height: 250px;
+	width: 300px;
+	height: 300px;
 }
 .comment-container {
 	border: 2px white solid;
 	margin:5px;
+}
+.like-btn .heart {
+    font-size: 36px;
+    color: black; /* Порожнє сердечко */
+	-webkit-text-stroke-width: 1px; 
+	-webkit-text-stroke-color: white; 
+}
+.like-btn .heart:hover {
+	-webkit-text-stroke-color: gray; 
+}
+.like-btn.liked .heart {
+    color: red; /* Заповнене сердечко */
+	-webkit-text-stroke-width: 0px; 
+}
+.pointer {
+	cursor: pointer;
+	user-select: none;
+}
+.post-user-info {
+	display: flex;
+	height: 50px;
+	gap: 10px;
+}
+.post_date {
+	color: gray;
 }

@@ -4,17 +4,28 @@
 {% block content %}
 {% for post in posts %}
 
-	{% if post.media %}
+	<article>
+		<section class="post-user-info">
+			<a href="{% url 'user-info' post.user.pk %}"><img src="{{post.user.avatar.url}}" class="avatar" style="width: 36px;height: 36px;"></a>
+			<a href="{% url 'user-info' post.user.pk %}"><h4><b>{{ post.user }}</b></h4></a>
+			<h4 class="post_date">{{ post.date_published.date }}</h4>
+		</section>
+		
 		<img src="{{post.media.url}}" class="post-media">
-	{% endif %}
-
-	<h2>{{ post.content }}</h2>
-	<h2>{{ post.user }}</h2>
-	<h2>{{ post.date_published }}</h2>
-	<a href="{% url 'post:delete_post' post.pk %}">Delete</a>
-	<a href="{% url 'post:update_post' post.pk %}">Update</a>
-	<br><br>
-	<h2 onclick=commentFunc(id) id="{{post.pk}}"><span class="material-symbols-outlined">comment</span></h2>
+	
+		<h2>{{ post.content }}</h2>
+		
+	</article>
+	<section>
+		<span onclick="likePost({{ post.pk }})" class="pointer like-btn {% for like in post.likes.all %}{% if request.user == like.user %}liked{% endif %}{% endfor %}" id="like-btn-{{ post.pk }}">
+			<span class="heart">&hearts;</span> 
+		</span>
+		<a href="{% url 'post:update_post' post.pk %}"><span class="material-symbols-outlined pointer">edit</span></a>
+		<a href="{% url 'post:delete_post' post.pk %}"><span class="material-symbols-outlined pointer">delete</span></a>
+		<span class="material-symbols-outlined pointer" onclick=commentFunc(id) id="{{post.pk}}">comment</span>
+	</section>
+	<h3>Likes: <span id="like-count-{{ post.pk }}">{{ post.likes.count }}</span></h3>
+	<br>
 	<form method="post">
 		{% csrf_token %}
 		{{form.as_p}}
@@ -33,10 +44,8 @@
 			</section>
 		{% endfor %}
 	</ul>
-	<form action="{% url 'post:like-post' post.pk %}" method="post"> 
-		{% csrf_token %} 
-		<button type="submit" class="btn {% if request.user in post.likes.all %}btn-primary {% else %}btn-outline-primary{% endif %}">Like {{post.likes.count}}</button> 
-	</form>
+
+	
 	<br>
 	<br>
 	
@@ -51,5 +60,28 @@
 				comments.style.display = "none";
 			}
 		}
+		function likePost(postId) {
+            const likeBtn = document.getElementById('like-btn-' + postId);
+            const likeCount = document.getElementById('like-count-' + postId);
+
+            fetch("{% url 'post:like-post' 0 %}".replace('0', postId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                likeCount.textContent = data.likes_count;
+				if (data.liked) {
+                    likeBtn.classList.add('liked');
+                } else {
+                    likeBtn.classList.remove('liked');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 	</script>
 {% endblock %}
