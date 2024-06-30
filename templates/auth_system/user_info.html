@@ -1,47 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center full-screen">
 
-    <h1>User profile</h1>
+<article class="main-container d-flex flex-column">
+    <section class="d-flex gap3">
+        <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% load static %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="profile-avatar">
+        <article class="d-flex flex-column gap">
+            <article class="d-flex gap">
+                <a href="{% url 'user-info' user.pk %}" class="h4">{{user.username}}</a>
+                {% if request.user == user %}
+                    <a href="{% url 'edit-user' user.id %}" class="a-btn">Edit profile</a>
+                    <span class="material-symbols-outlined">settings</span>
+                {% else %}
+                    <form id="follow-form" method="post" action="{% url 'toggle-follow' user.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" id="follow-button" class="a-btn">{% if user.pk in following %}Unfollow{% else %}Follow{% endif %}</button>
+                    </form>
+                {% endif %}
+            </article>
+            <ul class="gap d-flex">
+                <li><b>{{user.posts.count}}</b> posts</li>
+                <li><span id="followers-count"><b>{{ user.followers.count }}</b></span> followers</li> 
+                <li><span id="following-count"><b>{{ user.following.count }}</b></span> following</li>
+            </ul>
+            <b>{{user.first_name}} {{user.last_name}}</b>
+            <br>
+            
+            {% if user.bio %}
+            <p>{{user.bio}}</p><br>
+            {% endif %} 
+            
+        </article>
+    </section>
 
-    <ul class="user_infos">
-        {% if user.avatar %}
-            <img src="{{ user.avatar.url }}" class="avatar">
-        {% else %}
-            {% load static %}
-            <img src="{% static 'images/default_avatar.jpg' %}" class="avatar">
-        {% endif %}
-        <li><h1>{{user.username}} Followers: <span id="followers-count">{{ user.followers.count }}</span> Following: <span id="following-count">{{ user.following.count }}</span></h1></li><br>
-        <li>Name: {{user.first_name}}</li><br>
-        <li>Surname: {{user.last_name}}</li><br>
-        {% if user.bio %}
-            <li><p>{{user.bio}}</p></li><br>
-        {% endif %} 
         
-        {% if request.user == user %}
-            <li><a href="{% url 'edit-user' user.id %}">Edit profile</a></li>
-        {% else %}
-            <form id="follow-form" method="post" action="{% url 'toggle-follow' user.pk %}">
-                {% csrf_token %}
-                <button type="submit" id="follow-button">
-                    {% if user.pk in following %}
-                        Unfollow
-                    {% else %}
-                        Follow
-                    {% endif %}
-                </button>
-            </form>
-        {% endif %}
-    </ul>
-
+    <br><br><br><br><br>
     <h2>User posts:</h2>
     <ul class="">
         {% for post in user.posts.all %}
             <img src="{{post.media.url}}" style="width: 200px; height: 150px;">
         {% endfor %}
     </ul>
-</div>
+</article>
+
 <script>
     document.getElementById('follow-form').addEventListener('submit', function(event) {
         event.preventDefault();

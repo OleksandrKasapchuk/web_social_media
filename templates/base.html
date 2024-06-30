@@ -13,25 +13,42 @@
 	{% load static %}
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body class="d-flex flex-column">
 	
 	<nav class="sidebar">
-		<ul>
-			<li><h1><a href="{% url 'post:index' %}"  class="logo">Tashkegram</a></h1></li>
-			<li class="sidebar-item"><a href="#"><span class="material-symbols-outlined">search</span>  Search</a></li>
-			<li class="sidebar-item"><a href="{% url 'post:add_post' %}"><span class="material-symbols-outlined">add_box</span>  Add</a></li>
+		<ul class="d-flex flex-column">
+			<li><h1><a href="{% url 'post:index' %}" class="logo">Tashkegram</a></h1></li>
+			<li class="sidebar-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+				<a href="{% url 'post:index' %}"><span class="material-symbols-outlined">home</span>Home</a>
+			</li>
+			<li class="sidebar-item {% if request.resolver_match.url_name == 'add_post' %}active{% endif %}">
+				<a href="{% url 'post:add_post' %}"><span class="material-symbols-outlined">add_box</span>Add</a>
+			</li>
 			{% if not request.user.is_authenticated %}
-				<li class="sidebar-item"><a href="{% url 'login' %}"><span class="material-symbols-outlined">login</span>  Login</a></li>
+				<li class="sidebar-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+					<a href="{% url 'login' %}"><span class="material-symbols-outlined">login</span>Login</a>
+				</li>
 			{% else %}
-			<li class="sidebar-item"><a href="#"><span class="material-symbols-outlined">notifications</span>  Notifications</a></li>
-			<li class="sidebar-item"><a href="{% url 'user-info' request.user.pk %}"><img src="{% if request.user.avatar %}{{request.user.avatar.url}}{% endif %}" class="avatar" style="width: 24px;height: 24px;">  Profile</a></li>
-			<li class="sidebar-item"><a href="{% url 'home' %}"><span class="material-symbols-outlined">chat</span>  Messages</a></li>
-			<li class="sidebar-item"><a href="{% url 'logout' %}"><span class="material-symbols-outlined">logout</span>  Logout</a></li>
+				<li class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+					<a href="#"><span class="material-symbols-outlined">notifications</span>Notifications</a>
+				</li>
+				<li class="sidebar-item {% if request.resolver_match.url_name == 'user-info' and request.user == user %}active{% endif %}">
+					<a href="{% url 'user-info' request.user.pk %}">
+						<img src="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="sidebar-avatar">
+						Profile
+					</a>
+				</li>
+				<li class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+					<a href="{% url 'home' %}"><span class="material-symbols-outlined">chat</span>Messages</a>
+				</li>
+				<li class="sidebar-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">
+					<a href="{% url 'logout' %}"><span class="material-symbols-outlined">logout</span>Logout</a>
+				</li>
 			{% endif %}
 		</ul>
 	</nav>
-	
-	<main class="col-6">
+	{% block header %}{% endblock %}
+	<main class="d-flex flex-column">
 		{% block content %}
 		
 		{% endblock %}

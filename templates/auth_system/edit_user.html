@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center full-screen">
+
     <div class="col-lg-6 col-md-8 col-12 px-5">
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -44,5 +44,5 @@
             <button type="submit"class="sbmt-btn">Submit</button>
         </form>
     </div>
-</div>
+
 {% endblock %}

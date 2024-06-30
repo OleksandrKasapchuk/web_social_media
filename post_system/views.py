@@ -16,6 +16,16 @@ class Index(ListView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['form'] = CommentCreateForm
+
+		category = self.request.GET.get('category', 'for_you')
+
+		if category == 'following':
+			following_users = Subscription.objects.filter(user_from=self.request.user).values_list('user_to', flat=True)
+			context['posts'] = Post.objects.filter(user__in=following_users)
+		else:
+			context['posts'] = Post.objects.all()
+		context['category'] = category
+
 		return context
 
 	def post(self,request, *args, **kwargs):
