@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from .models import *
+from notifications.models import Notification
 from django.views.generic import View, ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
@@ -92,7 +93,12 @@ class LikeView(LoginRequiredMixin, View):
             like_qs.delete()
             liked = False
         else:
-            Like.objects.create(post=post, user=request.user)
+            like = Like.objects.create(post=post, user=request.user)
+            if like.user != post.user:
+                Notification.objects.create(
+						user=post.user,
+						message=f'{request.user.username} liked your post.',
+					)
             liked = True
         
         data = {

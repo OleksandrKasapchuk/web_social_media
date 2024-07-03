@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+    <h2>Chat with {{ participant.username }}</h2>
+    <div>
+        {% for message in chat.messages.all %}
+            <p class="h4"><img src="{% if message.sender.avatar %}{{ message.sender.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="sidebar-avatar"><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
+        {% endfor %}
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Send</button>
+    </form>
+{% endblock %}

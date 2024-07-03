@@ -75,6 +75,7 @@ def edit_user(request, user_id):
             name = request.POST.get('first_name')
             surname = request.POST.get('last_name')
             email = request.POST.get('email')
+            bio = request.POST.get('bio')
             avatar = request.FILES.get('avatar')
 
             user = CustomUser.objects.get(id=user_id)
@@ -82,7 +83,9 @@ def edit_user(request, user_id):
             user.email=email
             user.first_name=name
             user.last_name=surname
-            user.avatar=avatar
+            user.bio = bio
+            if avatar != None:
+                user.avatar=avatar
             user.save()
 
             messages.success(request, "Profile info has been updated")

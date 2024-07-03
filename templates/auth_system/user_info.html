@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-
+{% block title %}{{user.username}}{% endblock %}
 {% block content %}
 
 <article class="main-container d-flex flex-column">
-    <section class="d-flex gap3">
+    <section class="d-flex gap3 ps-4">
         <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% load static %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="profile-avatar">
         <article class="d-flex flex-column gap">
             <article class="d-flex gap">
@@ -16,6 +16,7 @@
                         {% csrf_token %}
                         <button type="submit" id="follow-button" class="a-btn">{% if user.pk in following %}Unfollow{% else %}Follow{% endif %}</button>
                     </form>
+                    <a href="{% url 'start_chat' user.id %}" class="a-btn">Start Chat</a>
                 {% endif %}
             </article>
             <ul class="gap d-flex">
@@ -24,23 +25,21 @@
                 <li><span id="following-count"><b>{{ user.following.count }}</b></span> following</li>
             </ul>
             <b>{{user.first_name}} {{user.last_name}}</b>
-            <br>
-            
             {% if user.bio %}
-            <p>{{user.bio}}</p><br>
+                <p>{{user.bio}}</p>
             {% endif %} 
             
         </article>
     </section>
-
-        
-    <br><br><br><br><br>
     <h2>User posts:</h2>
-    <ul class="">
+    <div class="row">
         {% for post in user.posts.all %}
-            <img src="{{post.media.url}}" style="width: 200px; height: 150px;">
+        <div class="col-md-4 mb-4 profile-post-container">
+            <img src="{{ post.media.url }}"  class="profile-post-media">
+            <div class="post-hover-info"><span><span class="heart">&hearts;</span> {{post.likes.count}}</span> <span><span class="material-symbols-outlined pointer">comment</span>{{post.comments.count}}</span></div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 </article>
 
 <script>
