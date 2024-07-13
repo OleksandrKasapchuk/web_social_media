@@ -4,7 +4,7 @@
 
 <article class="main-container d-flex flex-column">
     <section class="d-flex gap3 ps-4">
-        <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% load static %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="profile-avatar">
+        <img src="{{ user.avatar.url }}" class="profile-avatar">
         <article class="d-flex flex-column gap">
             <article class="d-flex gap">
                 <a href="{% url 'user-info' user.pk %}" class="h4">{{user.username}}</a>
@@ -16,13 +16,13 @@
                         {% csrf_token %}
                         <button type="submit" id="follow-button" class="a-btn">{% if user.pk in following %}Unfollow{% else %}Follow{% endif %}</button>
                     </form>
-                    <a href="{% url 'start_chat' user.id %}" class="a-btn">Start Chat</a>
+                    <a href="{% url 'chat:start_chat' user.id %}" class="a-btn">Start Chat</a>
                 {% endif %}
             </article>
             <ul class="gap d-flex">
                 <li><b>{{user.posts.count}}</b> posts</li>
-                <li><span id="followers-count"><b>{{ user.followers.count }}</b></span> followers</li> 
-                <li><span id="following-count"><b>{{ user.following.count }}</b></span> following</li>
+                <li><a href="{% url 'post:get-followers' user.pk %}"><span id="followers-count"><b>{{ user.followers.count }}</b></span> followers</a></li> 
+                <li><a href="{% url 'post:get-following' user.pk %}"><span id="following-count"><b>{{ user.following.count }}</b></span> following</a></li>
             </ul>
             <b>{{user.first_name}} {{user.last_name}}</b>
             {% if user.bio %}

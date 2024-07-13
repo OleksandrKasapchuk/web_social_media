@@ -124,3 +124,34 @@ class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
 
 	def get_success_url(self) -> str:
 		return reverse_lazy("post:index")
+
+
+class FollowerView(ListView):
+    model = CustomUser
+    template_name = 'post_system/user_list.html'
+
+    def get_queryset(self):
+        user = CustomUser.objects.get(pk=self.kwargs['pk'])
+        return user.followers.all().values_list('user_from', flat=True)
+	
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = "Follower"
+        context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
+        return context
+
+
+class FollowingView(ListView):
+    model = CustomUser
+    template_name = 'post_system/user_list.html'
+	
+    def get_queryset(self):
+        user = CustomUser.objects.get(pk=self.kwargs['pk'])
+        return user.following.all().values_list('user_to', flat=True)
+	
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = "Following"
+        context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
+        return context
