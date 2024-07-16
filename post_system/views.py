@@ -84,8 +84,11 @@ class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 		return reverse_lazy("post:index")
 
 
-class LikeView(LoginRequiredMixin, View):
+class LikeView(View):
     def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=403)
+		
         post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
         like_qs = Like.objects.filter(post=post, user=request.user)
         
@@ -155,3 +158,22 @@ class FollowingView(ListView):
         context['type'] = "Following"
         context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
         return context
+	
+def get_post_details(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    comments = post.comments.all()
+    data = {
+        'username': post.user.username,
+        'user_avatar_url': post.user.avatar.url if post.user.avatar else '/static/images/default_avatar.jpg',
+        'post_image_url': post.image.url,
+        'caption': post.caption,
+        'likes_count': post.likes.count(),
+        'comments': [
+            {
+                'username': comment.user.username,
+                'user_avatar_url': comment.user.avatar.url if comment.user.avatar else '/static/images/default_avatar.jpg',
+                'content': comment.content
+            } for comment in comments
+        ]
+    }
+    return JsonResponse(data)

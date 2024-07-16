@@ -163,6 +163,9 @@ li > a {
 	height: 85vh;
 	overflow-y: scroll;
 }
+#chat-messages::-webkit-scrollbar {
+    width: 0;
+}
 .msg-input {
 	width: 95%;
 	border-radius: 20px;
