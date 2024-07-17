@@ -104,7 +104,7 @@ class ChatDetailView(LoginRequiredMixin, View):
                     'success': True,
                     'username': request.user.username,
                     'content': message.content,
-                    'avatar_url': request.user.avatar.url if request.user.avatar else "/static/images/default_avatar.jpg"
+                    'avatar_url': request.user.avatar.url
                 })
             return redirect('chat:chat_detail', pk=chat.pk)
         except Exception as e:

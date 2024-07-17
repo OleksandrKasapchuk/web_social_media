@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<article class="main-container d-flex">
+	<img src="{{post.media.url}}" style="width: 600px; height: 600px;">
+	<article class="d-flex flex-column p-3 pt-0" style="width: 40%;">
+		<section class="post-user-info d-flex border-bottom border-secondary">
+			<a href="{% url 'user-info' post.user.pk %}"><img src="{{ post.user.avatar.url }}" class="sidebar-avatar me-3"></a>
+			<a href="{% url 'user-info' post.user.pk %}"><b>{{ post.user }}</b></a>
+		</section>
+		<section class="d-flex">
+			<a href="{% url 'user-info' post.user.pk %}"><img src="{{ post.user.avatar.url }}" class="sidebar-avatar me-3"></a>
+			<p><a href="{% url 'user-info' post.user.pk %}"><b>{{post.user.username}}</b></a> {{ post.content }}</p>
+		</section>	
+		
+		<ul id="comments" class="comments">
+			{% for comment in post.comments.all %}
+				<li class="comment-container mt-3 d-flex">
+					<section class="d-flex flex-column">
+						<section class="d-flex">
+							<a href="{% url 'user-info' comment.user.pk %}"><img src="{{ comment.user.avatar.url }}" class="sidebar-avatar me-3"></a>
+							<p><a href="{% url 'user-info' comment.user.pk %}"><b>{{ comment.user }}</b></a> {{comment.content}}</p>
+						</section>					
+						<p class="gray-text">{{ post.date_published.date }}</p>
+					</section>
+					<section>
+						<a href="{% url 'post:update-comment' comment.pk %}"><span class="material-symbols-outlined pointer">edit</span></a>
+						<a href="{% url 'post:delete-comment' comment.pk %}"><span class="material-symbols-outlined pointer">delete</span></a>
+					</section>
+				</li>
+			{% endfor %}
+		</ul>
+	<section>
+		<span onclick="likePost({{post.pk}})" class="pointer like-btn {% for like in post.likes.all %}{% if request.user == like.user %}liked{% endif %}{% endfor %}" id="like-btn-{{ post.pk }}">
+			<span class="heart">&hearts;</span> 
+		</span>
+		<a href="{% url 'post:update_post' post.pk %}" class="p-2"><span class="material-symbols-outlined pointer">edit</span></a>
+		<a href="{% url 'post:delete_post' post.pk %}" class="p-2"><span class="material-symbols-outlined pointer">delete</span></a>
+		<span class="material-symbols-outlined pointer" class="p-2">comment</span>
+	</section>
+	<section>
+		<p><span id="like-count-{{ post.pk }}">{{ post.likes.count }}</span> likes</p>
+		<p class="gray-text">{{ post.date_published.date }}</p>
+	</section>	
+	<section class="msg-input d-flex"><input id="message-content" placeholder="Add a comment..."><span class="material-symbols-outlined pointer p-3 pt-2" onclick=SendComment({{post.pk}})>Send</span></section>
+</article>
+<script>
+    function SendComment(postId) {
+        const content = document.getElementById('message-content').value.trim();
+        if (content === '') {
+            alert('Please enter the text.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch("{% url 'post:post-details' 0 %}".replace('0', postId), {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const postComments = document.getElementById('comments');
+                const newComment = document.createElement('li');
+                newComment.classList.add('comment-container', 'mt-3', 'd-flex');
+                newComment.innerHTML = `
+                    <section class="d-flex flex-column">
+                        <section class="d-flex">
+                            <a href="${data.user_url}"><img src="${data.avatar_url}" class="sidebar-avatar me-3"></a>
+                            <p><a href="${data.user_url}"><b>${data.username}</b></a> ${data.content}</p>
+                        </section>
+                        <p class="gray-text">${data.date_published}</p>
+                    </section>
+                    <section>
+                        <a href="${data.update_url}/"><span class="material-symbols-outlined pointer">edit</span></a>
+                        <a href="${data.delete_url}/"><span class="material-symbols-outlined pointer">delete</span></a>
+                    </section>
+                `;
+                postComments.appendChild(newComment);
+                document.getElementById('message-content').value = '';
+            } else {
+                alert('Error sending message: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+{% endblock %}

@@ -82,7 +82,7 @@ li > a {
 }
 .profile-post-media {
 	width: 100%;
-	height: 100%;
+	height: 95%;
 }
 .post-hover-info {
 	color: transparent;
@@ -100,11 +100,10 @@ li > a {
 	color: white;
 	background-color: rgba(0, 0, 0, 0.3);
 }
-.comment-container {
-	border: 2px white solid;
-	margin:5px;
+.comments {
+	height: 300px;
+	overflow-y: scroll;
 }
-
 .like-btn .heart {
 	font-size: 36px;
     color: black; /* Порожнє сердечко */
@@ -123,7 +122,6 @@ li > a {
 	user-select: none;
 }
 .post-user-info {
-	display: flex;
 	height: 50px;
 	gap: 10px;
 }

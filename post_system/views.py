@@ -20,7 +20,7 @@ class Index(ListView):
 
 		category = self.request.GET.get('category', 'for_you')
 
-		if category == 'following':
+		if category == 'following' and self.request.user.is_authenticated:
 			following_users = Subscription.objects.filter(user_from=self.request.user).values_list('user_to', flat=True)
 			context['posts'] = Post.objects.filter(user__in=following_users)
 		else:
@@ -29,14 +29,37 @@ class Index(ListView):
 
 		return context
 
-	def post(self,request, *args, **kwargs):
-		form = CommentCreateForm(request.POST)
-		if form.is_valid():
-			comment = form.save(commit=False)
-			comment.user = request.user
-			comment.post = Post.objects.get(pk=request.POST.get('post_pk'))
-			comment.save()
-		return redirect('post:index')
+
+class PostDetailView(DetailView):
+	model = Post
+	context_object_name ='post'
+	template_name = 'post_system/post_details.html'
+
+	def post(self, request,pk, *args, **kwargs):
+		post = get_object_or_404(Post, pk=pk)
+		content = request.POST.get('content')
+		try:
+			comment = Comment.objects.create(
+			post=post,
+			user=request.user,
+			content=content
+			)
+			if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+				return JsonResponse({
+					'success': True,
+					'username': request.user.username,
+					'content': comment.content,
+					'avatar_url': request.user.avatar.url,
+					'date_published': comment.date_published.date,
+					'user_url': reverse_lazy('user-info', kwargs={"pk":comment.user.pk}),
+					'update_url': reverse_lazy('post:update-comment', kwargs={"pk":comment.pk}),
+					'delete_url': reverse_lazy('post:delete-comment', kwargs={"pk":comment.pk}),
+				})
+			return redirect('post:post_details', pk=post.pk)
+		except Exception as e:
+			if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+				return JsonResponse({'success': False, 'error': str(e)})
+			raise e
 
 
 class PostCreateView(LoginRequiredMixin, View):
@@ -116,7 +139,7 @@ class DeleteCommentView(LoginRequiredMixin,UserIsOwnerMixin,DeleteView):
 	template_name = "form.html"
 	
 	def get_success_url(self) -> str:
-		return reverse_lazy("post:index")
+		return reverse_lazy("post:index", kwargs={'pk': self})
 
 
 class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
@@ -158,22 +181,4 @@ class FollowingView(ListView):
         context['type'] = "Following"
         context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
         return context
-	
-def get_post_details(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    comments = post.comments.all()
-    data = {
-        'username': post.user.username,
-        'user_avatar_url': post.user.avatar.url if post.user.avatar else '/static/images/default_avatar.jpg',
-        'post_image_url': post.image.url,
-        'caption': post.caption,
-        'likes_count': post.likes.count(),
-        'comments': [
-            {
-                'username': comment.user.username,
-                'user_avatar_url': comment.user.avatar.url if comment.user.avatar else '/static/images/default_avatar.jpg',
-                'content': comment.content
-            } for comment in comments
-        ]
-    }
-    return JsonResponse(data)
+

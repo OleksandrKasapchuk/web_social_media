@@ -34,9 +34,9 @@
     <h2>User posts:</h2>
     <div class="row">
         {% for post in user.posts.all %}
-        <div class="col-md-4 mb-4 profile-post-container">
+        <div class="col-md-4 profile-post-container">
             <img src="{{ post.media.url }}"  class="profile-post-media">
-            <div class="post-hover-info"><span><span class="heart">&hearts;</span> {{post.likes.count}}</span> <span><span class="material-symbols-outlined pointer">comment</span>{{post.comments.count}}</span></div>
+            <a class="post-hover-info" href="{% url 'post:post-details' post.pk %}"><span><span class="heart">&hearts;</span> {{post.likes.count}}</span> <span><span class="material-symbols-outlined pointer">comment</span>{{post.comments.count}}</span></a>
         </div>
         {% endfor %}
     </div>
