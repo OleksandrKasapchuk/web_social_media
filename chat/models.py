@@ -9,9 +9,10 @@ class Chat(models.Model):
     def __str__(self):
         return f"Chat between {', '.join([str(p) for p in self.participants.all()])}"
 
+
 class Message(models.Model):
     chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)
-    sender = models.ForeignKey(CustomUser, related_name='messages', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, related_name='messages', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 

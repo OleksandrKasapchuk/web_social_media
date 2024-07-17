@@ -30,14 +30,14 @@
 				</li>
 			{% else %}
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'chat_list' or request.resolver_match.url_name == 'chat_detail' %}active{% endif %}">
-					<a href="{% url 'chat_list' %}"><span class="material-symbols-outlined">chat</span>Messages</a>
+					<a href="{% url 'chat:chat_list' %}"><span class="material-symbols-outlined">chat</span>Messages</a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
 					<a href="{% url 'notifications' request.user.pk %}"><span class="material-symbols-outlined">notifications</span>Notifications</a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'user-info' and request.user == user %}active{% endif %}">
 					<a href="{% url 'user-info' request.user.pk %}">
-						<img src="{% if request.user.avatar %}{{ request.user.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="sidebar-avatar">
+						<img src="{{ request.user.avatar.url }}" class="sidebar-avatar">
 						Profile
 					</a>
 				</li>

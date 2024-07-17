@@ -2,16 +2,114 @@
 {% load static %}
 {% block title %}Chat{% endblock %}
 
+
 {% block content %}
+<article class="chat-container">
     <h2>Chat with {{ participant.username }}</h2>
-    <div>
+    <section id="chat-messages" class="d-flex flex-column">
         {% for message in chat.messages.all %}
-            <p class="h4"><img src="{% if message.sender.avatar %}{{ message.sender.avatar.url }}{% else %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="sidebar-avatar"><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
+            <article class="d-flex mx-4 {% if request.user == message.user %}flex-row-reverse{% endif %}">
+                <a href="{% url 'user-info' message.user.pk %}"><img src="{{ message.user.avatar.url }}" style="border-radius: 30px;width: 36px;height: 36px;"></a>
+                <p class="message d-flex {% if request.user == message.user %}bg-info{% endif %}">
+                    {{ message.content }}
+                </p>
+                {% if request.user == message.user %}
+                <a href="{% url 'chat:delete_message' message.chat.pk message.pk %}" class="p-3 delete-btn"><span class="material-symbols-outlined pointer">delete</span></a>
+                {% endif %}
+            </article>
         {% endfor %}
-    </div>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Send</button>
-    </form>
+    </section>
+    <section class="msg-input d-flex m-4"><input id="message-content" placeholder="Type a message..."><span class="material-symbols-outlined pointer p-3 pt-2" onclick=SendMessage()>Send</span></section>
+</aricle>
+
+<script>
+    function SendMessage() {
+        const content = document.getElementById('message-content').value.trim();
+        if (content === '') {
+            alert('Please enter a message.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch("{% url 'chat:chat_detail' chat.pk %}", {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+        if (data.success) {
+            const chatMessages = document.getElementById('chat-messages');
+            const newMessage = document.createElement('article');
+            newMessage.classList.add('d-flex', 'mx-4', 'flex-row-reverse');
+            if (data.is_user_message) {
+                newMessage.classList.add('flex-row-reverse');
+            }
+            newMessage.innerHTML = `
+                <img src="${data.avatar_url}" style="border-radius: 30px;width: 36px;height: 36px;">
+                <p class="message d-flex bg-info">
+                    ${data.content}
+                </p>
+                ${data.is_user_message ? `<a href="#" data-delete-url="${data.delete_url}" class="p-3 delete-btn"><span class="material-symbols-outlined pointer">delete</span></a>` : ''}
+            `;
+            chatMessages.appendChild(newMessage);
+            document.getElementById('message-content').value = '';
+        } else {
+            alert('Error sending message: ' + (data.error || 'Unknown error'));
+        }
+    })
+        .catch(error => console.error('Error:', error));
+    };
+    function fetchMessages() {
+        const chatMessages = document.getElementById('chat-messages');
+        fetch("{% url 'chat:get_messages' chat.pk %}", {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            chatMessages.innerHTML = '';
+            data.messages.forEach(message => {
+                const newMessage = document.createElement('article');
+                newMessage.classList.add('d-flex', 'mx-4');
+                if (message.is_user_message) {
+                    newMessage.classList.add('flex-row-reverse');
+                }
+                newMessage.innerHTML = `
+                    <img src="${message.avatar_url}" style="border-radius: 30px;width: 36px;height: 36px;">
+                    <p class="message d-flex ${message.is_user_message ? 'bg-info' : ''}">
+                        ${message.content}
+                    </p>
+                    ${message.is_user_message ? `<a href="${message.delete_url}" class="p-3 delete-btn"><span class="material-symbols-outlined pointer">delete</span></a>` : ''}
+                `;
+                chatMessages.appendChild(newMessage);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Fetch messages every 5 seconds
+    setInterval(fetchMessages, 5000);
+
+    // Initial fetch
+    fetchMessages();
+;
+</script>
 {% endblock %}

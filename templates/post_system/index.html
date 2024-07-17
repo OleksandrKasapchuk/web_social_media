@@ -14,7 +14,7 @@
 	<article class="post-container">
 		<section>
 			<article class="post-user-info">
-				<a href="{% url 'user-info' post.user.pk %}"><img src="{% if post.user.avatar %}{{ post.user.avatar.url }}{% else %}{% load static %}{% static 'images/default_avatar.jpg' %}{% endif %}" class="profile-avatar" style="width: 36px;height: 36px;"></a>
+				<a href="{% url 'user-info' post.user.pk %}"><img src="{{ post.user.avatar.url }}" class="profile-avatar" style="width: 36px;height: 36px;"></a>
 				<a href="{% url 'user-info' post.user.pk %}"><h4><b>{{ post.user }}</b></h4></a>
 				<h4 class="gray-text">{{ post.date_published.date }}</h4>
 			</article>
@@ -82,21 +82,24 @@
 			},
 			body: JSON.stringify({})
 		})
-		.then(response => response.json())
+		.then(response => {
+			if (response.status === 403) {
+				window.location.href = '{% url "login" %}';
+				return;
+			}
+			return response.json();
+		})
 		.then(data => {
-			likeCount.textContent = data.likes_count;
-			if (data.liked) {
-				likeBtn.classList.add('liked');
-			} else {
-				likeBtn.classList.remove('liked');
+			if (data) {
+				likeCount.textContent = data.likes_count;
+				if (data.liked) {
+					likeBtn.classList.add('liked');
+				} else {
+					likeBtn.classList.remove('liked');
+				}
 			}
 		})
 		.catch(error => console.error('Error:', error));
-	}
-	function changeFilter(filter) {
-		const url = new URL(window.location.href);
-		url.searchParams.set('filter', filter);
-		window.location.href = url.toString();
 	}
 </script>
 {% endblock %}

@@ -2,8 +2,7 @@
 
 
 {% block content %}
-
-
+<article class="main-container d-flex flex-column"></article>
     <form method="POST" action="{% url 'register' %}" class="register-form">
         {% csrf_token %}
         <h1>Register</h1>
@@ -39,8 +38,6 @@
         </section>
 
         <button type="submit"class="sbmt-btn">Submit</button>
-
     </form>
-
-
+</article>
 {% endblock %}

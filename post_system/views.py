@@ -84,8 +84,11 @@ class PostDeleteView(LoginRequiredMixin, UserIsOwnerMixin, DeleteView):
 		return reverse_lazy("post:index")
 
 
-class LikeView(LoginRequiredMixin, View):
+class LikeView(View):
     def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'detail': 'Authentication credentials were not provided.'}, status=403)
+		
         post = get_object_or_404(Post, pk=self.kwargs.get('pk'))
         like_qs = Like.objects.filter(post=post, user=request.user)
         
@@ -124,3 +127,53 @@ class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
 
 	def get_success_url(self) -> str:
 		return reverse_lazy("post:index")
+
+
+class FollowerView(ListView):
+    model = CustomUser
+    template_name = 'post_system/user_list.html'
+
+    def get_queryset(self):
+        user = CustomUser.objects.get(pk=self.kwargs['pk'])
+        return user.followers.all().values_list('user_from', flat=True)
+	
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = "Follower"
+        context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
+        return context
+
+
+class FollowingView(ListView):
+    model = CustomUser
+    template_name = 'post_system/user_list.html'
+	
+    def get_queryset(self):
+        user = CustomUser.objects.get(pk=self.kwargs['pk'])
+        return user.following.all().values_list('user_to', flat=True)
+	
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = "Following"
+        context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
+        return context
+	
+def get_post_details(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    comments = post.comments.all()
+    data = {
+        'username': post.user.username,
+        'user_avatar_url': post.user.avatar.url if post.user.avatar else '/static/images/default_avatar.jpg',
+        'post_image_url': post.image.url,
+        'caption': post.caption,
+        'likes_count': post.likes.count(),
+        'comments': [
+            {
+                'username': comment.user.username,
+                'user_avatar_url': comment.user.avatar.url if comment.user.avatar else '/static/images/default_avatar.jpg',
+                'content': comment.content
+            } for comment in comments
+        ]
+    }
+    return JsonResponse(data)
