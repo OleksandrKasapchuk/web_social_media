@@ -8,14 +8,15 @@
 			<a href="{% url 'user-info' post.user.pk %}"><img src="{{ post.user.avatar.url }}" class="sidebar-avatar me-3"></a>
 			<a href="{% url 'user-info' post.user.pk %}"><b>{{ post.user }}</b></a>
 		</section>
-		<section class="d-flex">
-			<a href="{% url 'user-info' post.user.pk %}"><img src="{{ post.user.avatar.url }}" class="sidebar-avatar me-3"></a>
-			<p><a href="{% url 'user-info' post.user.pk %}"><b>{{post.user.username}}</b></a> {{ post.content }}</p>
-		</section>	
-		
+		{% if post.content %}
+			<section class="d-flex">
+				<a href="{% url 'user-info' post.user.pk %}"><img src="{{ post.user.avatar.url }}" class="sidebar-avatar me-3"></a>
+				<p><a href="{% url 'user-info' post.user.pk %}"><b>{{post.user.username}}</b></a> {{ post.content }}</p>
+			</section>	
+		{% endif %}
 		<ul id="comments" class="comments">
 			{% for comment in post.comments.all %}
-				<li class="comment-container mt-3 d-flex">
+				<li id="comment-{{ comment.pk }}" class="comment-container mt-3 d-flex">
 					<section class="d-flex flex-column">
 						<section class="d-flex">
 							<a href="{% url 'user-info' comment.user.pk %}"><img src="{{ comment.user.avatar.url }}" class="sidebar-avatar me-3"></a>
@@ -23,10 +24,12 @@
 						</section>					
 						<p class="gray-text">{{ post.date_published.date }}</p>
 					</section>
-					<section>
-						<a href="{% url 'post:update-comment' comment.pk %}"><span class="material-symbols-outlined pointer">edit</span></a>
-						<a href="{% url 'post:delete-comment' comment.pk %}"><span class="material-symbols-outlined pointer">delete</span></a>
-					</section>
+					{% if request.user == comment.user %}
+						<section>
+							<a href="{% url 'post:update-comment' comment.pk %}"><span class="material-symbols-outlined pointer">edit</span></a>
+							<span class="material-symbols-outlined pointer" onclick="deleteComment({{ comment.pk }})">delete</span>
+						</section>
+					{% endif %}
 				</li>
 			{% endfor %}
 		</ul>
@@ -34,8 +37,10 @@
 		<span onclick="likePost({{post.pk}})" class="pointer like-btn {% for like in post.likes.all %}{% if request.user == like.user %}liked{% endif %}{% endfor %}" id="like-btn-{{ post.pk }}">
 			<span class="heart">&hearts;</span> 
 		</span>
-		<a href="{% url 'post:update_post' post.pk %}" class="p-2"><span class="material-symbols-outlined pointer">edit</span></a>
-		<a href="{% url 'post:delete_post' post.pk %}" class="p-2"><span class="material-symbols-outlined pointer">delete</span></a>
+		{% if request.user == post.user %}
+			<a href="{% url 'post:update_post' post.pk %}" class="p-2"><span class="material-symbols-outlined pointer">edit</span></a>
+			<a href="{% url 'post:delete_post' post.pk %}" class="p-2"><span class="material-symbols-outlined pointer">delete</span></a>
+		{% endif %}
 		<span class="material-symbols-outlined pointer" class="p-2">comment</span>
 	</section>
 	<section>
@@ -95,5 +100,25 @@
         })
         .catch(error => console.error('Error:', error));
     }
+	function deleteComment(commentId) {
+		if (!confirm('Are you sure you want to delete this comment?')) {
+			return;
+		}
+
+		fetch("{% url 'post:delete-comment' 0 %}".replace('0', commentId), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': '{{ csrf_token }}'
+			}
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				document.getElementById('comment-' + commentId).remove();
+			}
+		})
+		.catch(error => console.error('Error:', error));
+	}
 </script>
 {% endblock %}

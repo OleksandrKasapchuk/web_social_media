@@ -70,6 +70,7 @@ li > a {
 }
 .post-container {
 	width: 468px;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 .post-media {
 	width: 100%;

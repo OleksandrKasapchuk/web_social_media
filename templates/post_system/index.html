@@ -18,7 +18,6 @@
 				<a href="{% url 'user-info' post.user.pk %}"><h4><b>{{ post.user }}</b></h4></a>
 				<h4 class="gray-text">{{ post.date_published.date }}</h4>
 			</article>
-			
 			<figure>
 				<img src="{{post.media.url}}" class="post-media">
 				<section>
@@ -33,50 +32,13 @@
 				<figcaption><a href="{% url 'user-info' post.user.pk %}"><b>{{post.user.username}}</b></a> {{ post.content }}</figcaption>
 			</figure>
 		</section>
-
 		<br>
-
-		<form method="post">
-			{% csrf_token %}
-			{{form.as_p}}
-			<input type="hidden" name="post_pk" value="{{post.pk}}">
-			<button type="submit">Add comment</button>
-		</form>
 	</article>
 {% endfor %}
 <script>
 	function filterPosts(category) {
         window.location.href = `?category=${category}`;
     }
-	function likePost(postId) {
-		const likeBtn = document.getElementById('like-btn-' + postId);
-		const likeCount = document.getElementById('like-count-' + postId);
-
-		fetch("{% url 'post:like-post' 0 %}".replace('0', postId), {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': '{{ csrf_token }}'
-			},
-			body: JSON.stringify({})
-		})
-		.then(response => {
-            if (response.status === 403) {
-                window.location.href = '{% url "login" %}';
-                return;
-            }
-            return response.json();
-        })
-		.then(data => {
-			likeCount.textContent = data.likes_count;
-			if (data.liked) {
-				likeBtn.classList.add('liked');
-			} else {
-				likeBtn.classList.remove('liked');
-			}
-		})
-		.catch(error => console.error('Error:', error));
-	}
 	function changeFilter(filter) {
 		const url = new URL(window.location.href);
 		url.searchParams.set('filter', filter);

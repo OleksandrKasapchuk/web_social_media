@@ -16,7 +16,7 @@
                         {% csrf_token %}
                         <button type="submit" id="follow-button" class="a-btn">{% if user.pk in following %}Unfollow{% else %}Follow{% endif %}</button>
                     </form>
-                    <a href="{% url 'chat:start_chat' user.id %}" class="a-btn">Start Chat</a>
+                    <a href="{% url 'chat:start_chat' user.pk %}" class="a-btn">Start Chat</a>
                 {% endif %}
             </article>
             <ul class="gap d-flex">
@@ -41,7 +41,6 @@
         {% endfor %}
     </div>
 </article>
-
 <script>
     document.getElementById('follow-form').addEventListener('submit', function(event) {
         event.preventDefault();

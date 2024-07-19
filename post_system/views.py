@@ -16,7 +16,6 @@ class Index(ListView):
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['form'] = CommentCreateForm
 
 		category = self.request.GET.get('category', 'for_you')
 
@@ -50,7 +49,7 @@ class PostDetailView(DetailView):
 					'username': request.user.username,
 					'content': comment.content,
 					'avatar_url': request.user.avatar.url,
-					'date_published': comment.date_published.date,
+					'date_published': comment.date_published,
 					'user_url': reverse_lazy('user-info', kwargs={"pk":comment.user.pk}),
 					'update_url': reverse_lazy('post:update-comment', kwargs={"pk":comment.pk}),
 					'delete_url': reverse_lazy('post:delete-comment', kwargs={"pk":comment.pk}),
@@ -134,12 +133,15 @@ class LikeView(View):
         return JsonResponse(data)
 
 
-class DeleteCommentView(LoginRequiredMixin,UserIsOwnerMixin,DeleteView):
-	model = Comment
-	template_name = "form.html"
-	
-	def get_success_url(self) -> str:
-		return reverse_lazy("post:index", kwargs={'pk': self})
+class DeleteCommentView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        comment = get_object_or_404(Comment, pk=pk)
+        if request.user == comment.user:
+            comment.delete()
+            return JsonResponse({'success': True, 'message': 'Comment deleted successfully.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'You do not have permission to delete this comment.'}, status=403)
 
 
 class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
@@ -149,7 +151,7 @@ class UpdateCommentView(LoginRequiredMixin,UserIsOwnerMixin,UpdateView):
 	form_class = CommentCreateForm
 
 	def get_success_url(self) -> str:
-		return reverse_lazy("post:index")
+		return reverse_lazy("post:post-details")
 
 
 class FollowerView(ListView):
@@ -181,4 +183,3 @@ class FollowingView(ListView):
         context['type'] = "Following"
         context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
         return context
-

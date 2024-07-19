@@ -7,9 +7,9 @@
 <h1>{{type}} list</h1>
 {% for user in users %}
 	<article class="d-flex">
-		<a href="{% url 'user-info' user.pk %}">
-			<img src="{{ post.user.avatar.url }}" class="sidebar-avatar">
-			<p class="h4">{{user}}</p>
+		<a href="{% url 'user-info' user.pk %}" class="h3">
+			<img src="{{ user.avatar.url }}" class="sidebar-avatar">
+			{{user}}
 		</a>
 	</article>
 {% endfor %}

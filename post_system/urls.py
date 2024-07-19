@@ -10,8 +10,8 @@ urlpatterns = [
 	path('update-comment/<int:pk>', post_views.UpdateCommentView.as_view(), name='update-comment'),
 	path('delete-comment/<int:pk>', post_views.DeleteCommentView.as_view(), name='delete-comment'),
 	path('like/<int:pk>', post_views.LikeView.as_view(), name='like-post'),
-	path('followers/<int:pk>/', post_views.FollowerView.as_view(), name='get-followers'),
-    path('following/<int:pk>/', post_views.FollowingView.as_view(), name='get-following'),
+	path('followers/<int:pk>', post_views.FollowerView.as_view(), name='get-followers'),
+    path('following/<int:pk>', post_views.FollowingView.as_view(), name='get-following'),
 ]
 
 app_name = 'post' 
