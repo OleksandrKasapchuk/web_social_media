@@ -46,7 +46,7 @@
 	<section>
 		<p><span id="like-count-{{ post.pk }}">{{ post.likes.count }}</span> likes</p>
 		<p class="gray-text">{{ post.date_published.date }}</p>
-	</section>	
+	</section>
 	<section class="msg-input d-flex"><input id="message-content" placeholder="Add a comment..."><span class="material-symbols-outlined pointer p-3 pt-2" onclick=SendComment({{post.pk}})>Send</span></section>
 </article>
 <script>

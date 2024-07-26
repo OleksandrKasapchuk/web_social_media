@@ -1,9 +1,37 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 <h1>Notifications</h1>
 {% for notification in notifications %}
-	<h4>{{notification}}</h4>
+    <h4>
+        {{ notification.message }}
+        {% if notification.type == 'post' and notification.post %}
+            <a href="{% url 'post:post-details' notification.post.pk %}">View Post</a>
+        {% elif notification.type == 'chat' and notification.chat %}
+            <a href="{% url 'chat:chat_detail' notification.chat.pk %}">View Chat</a>
+        {% endif %}
+    </h4>
 {% endfor %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch("{% url 'mark_notifications_as_read' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Сповіщення успішно позначені як прочитані.');
+            } else {
+                console.error('Помилка при позначенні сповіщень як прочитаних:', data.error);
+            }
+        })
+        .catch(error => console.error('Помилка:', error));
+    });
+</script>
 {% endblock %}

@@ -5,8 +5,9 @@ from django.http import JsonResponse
 from django.views.generic import View, ListView, DetailView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from .models import Chat, Message
 from auth_system.models import CustomUser
+from .models import Chat, Message
+from notifications.models import Notification
 from post_system.mixins import *
 
 
@@ -55,6 +56,17 @@ class ChatDetailView(LoginRequiredMixin, View):
                 user=request.user,
                 content=content
             )
+
+            # Create notification for the other participant
+            other_participant = chat.participants.exclude(id=request.user.pk).first()
+            if other_participant:
+                Notification.objects.create(
+                    user=other_participant,
+                    type='chat',
+                    chat=chat,
+                    message=f'{request.user.username} sent you a message in the chat.'
+                )
+
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,

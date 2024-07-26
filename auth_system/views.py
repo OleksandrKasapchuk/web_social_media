@@ -35,16 +35,16 @@ def login_user(request):
     else:
         if request.method == "POST":
             username = request.POST.get("username")
-            password = request.POST.get('password')
+            password = request.POST.get("password")
 
             user = authenticate(username=username,password=password)
             
             if user is not None:
                 login(request, user)
-                # messages.success(request, ("You have been succesfully logged in"))
+                messages.success(request, ("You have been succesfully logged in"))
                 return redirect("post:index")
             else:
-                # messages.error(request, ("There was an error logging in, try again!"))
+                messages.error(request, ("There was an error logging in, try again!"))
                 return redirect("login")
             
         else:
@@ -53,7 +53,7 @@ def login_user(request):
 @login_required
 def logout_user(request):
     logout(request)
-    # messages.success(request, ("You were logged out"))
+    messages.success(request, ("You were logged out"))
     return redirect("post:index")
 
 def user_info(request, pk):

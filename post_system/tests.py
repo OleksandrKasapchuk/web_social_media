@@ -3,10 +3,17 @@ from .models import Post
 from auth_system.models import CustomUser
 
 
-# class IndexTest(TestCase):
-# 	def test_index_access(self):
-# 		response = self.client.get('/')
-# 		self.assertEqual(response.status_code, 200)
+class IndexTest(TestCase):
+	def test_index_access(self):
+		response = self.client.get('/')
+		self.assertEqual(response.status_code, 200)
+
+
+class AddPostTest(TestCase):
+	def test_index_access(self):
+		response = self.client.get('/add-post/')
+		self.assertEqual(response.status_code, 200)
+
 
 class PostModelTest (TestCase):
 	def test_create_post (self):

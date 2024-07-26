@@ -6,12 +6,14 @@
 
 <h1>{{type}} list</h1>
 {% for user in users %}
-	<article class="d-flex">
-		<a href="{% url 'user-info' user.pk %}" class="h3">
-			<img src="{{ user.avatar.url }}" class="sidebar-avatar">
-			{{user}}
-		</a>
-	</article>
+    <article class="d-flex">
+        <a href="{% url 'user-info' user.pk %}" class="h3">
+            <img src="{{ user.avatar.url }}" class="sidebar-avatar">
+            {{ user }}
+        </a>
+        <button id="follow-button-{{ user.pk }}" class="a-btn" onclick="toggleFollow({{ user.pk }})">
+            {% if user.pk in following %}Unfollow{% else %}Follow{% endif %}
+        </button>
+    </article>
 {% endfor %}
-
 {% endblock %}

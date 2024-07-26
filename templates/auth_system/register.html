@@ -2,6 +2,22 @@
 
 
 {% block content %}
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+        <div class="alert alert-success alert-dismissible" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        {% if message.tags == "error" %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 <article class="main-container d-flex flex-column"></article>
     <form method="POST" action="{% url 'register' %}" class="register-form">
         {% csrf_token %}
@@ -37,7 +53,7 @@
             <input type="password" required id="password" name="password" class="form-control form-input">
         </section>
 
-        <button type="submit"class="sbmt-btn">Submit</button>
+        <button type="submit"class="btn btn-primary">Submit</button>
     </form>
 </article>
 {% endblock %}

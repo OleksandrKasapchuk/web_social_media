@@ -122,6 +122,8 @@ class LikeView(View):
             if like.user != post.user:
                 Notification.objects.create(
 						user=post.user,
+						post=post,
+						type="post",
 						message=f'{request.user.username} liked your post.',
 					)
             liked = True
@@ -162,11 +164,11 @@ class FollowerView(ListView):
         user = CustomUser.objects.get(pk=self.kwargs['pk'])
         return user.followers.all().values_list('user_from', flat=True)
 	
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['type'] = "Follower"
         context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
+        context["following"] = CustomUser.objects.get(pk=self.kwargs['pk']).following.values_list('user_to_id', flat=True)
         return context
 
 
@@ -182,4 +184,5 @@ class FollowingView(ListView):
         context = super().get_context_data(**kwargs)
         context['type'] = "Following"
         context['users'] = CustomUser.objects.filter(pk__in=self.get_queryset())
+        context["following"] = CustomUser.objects.get(pk=self.kwargs['pk']).following.values_list('user_to_id', flat=True)
         return context
