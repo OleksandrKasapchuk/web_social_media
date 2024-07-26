@@ -13,11 +13,13 @@
 	{% load static %}
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body class="d-flex flex-column">
-	
 	<nav class="sidebar">
 		<ul class="d-flex flex-column">
-			<li><h1><a href="{% url 'post:index' %}" class="logo">Tashkegram</a></h1></li>
+			<li>
+				<h1><a href="{% url 'post:index' %}" class="logo">Tashkegram</a></h1>
+			</li>
 			<li class="sidebar-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
 				<a href="{% url 'post:index' %}"><span class="material-symbols-outlined">home</span>Home</a>
 			</li>
@@ -33,7 +35,13 @@
 					<a href="{% url 'chat:chat_list' %}"><span class="material-symbols-outlined">chat</span>Messages</a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
-					<a href="{% url 'notifications' request.user.pk %}"><span class="material-symbols-outlined">notifications</span>Notifications</a>
+					<a href="{% url 'notifications' request.user.pk %}">
+						<span class="material-symbols-outlined">notifications</span>
+						Notifications
+						{% if unread_notification_count > 0 %}
+							<span class="new-notification-icon">{{ unread_notification_count }}</span>
+						{% endif %}
+					</a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'user-info' and request.user == user %}active{% endif %}">
 					<a href="{% url 'user-info' request.user.pk %}">
@@ -42,7 +50,7 @@
 					</a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">
-					<a href="{% url 'logout' %}"><span class="material-symbols-outlined">logout</span>Logout</a>
+					<a href="{% url 'logout' %}"><span class="material-symbols-outlined">logout</span>Вихід</a>
 				</li>
 			{% endif %}
 		</ul>
@@ -50,8 +58,70 @@
 	{% block header %}{% endblock %}
 	<main class="d-flex flex-column">
 		{% block content %}
-		
 		{% endblock %}
 	</main>
+</body>
+	
+<script>
+	function likePost(postId) {
+		const likeBtn = document.getElementById('like-btn-' + postId);
+		const likeCount = document.getElementById('like-count-' + postId);
+
+		fetch("{% url 'post:like-post' 0 %}".replace('0', postId), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': '{{ csrf_token }}'
+			},
+			body: JSON.stringify({})
+		})
+		.then(response => {
+			if (response.status === 403) {
+				window.location.href = '{% url "login" %}';
+				return;
+			}
+			return response.json();
+		})
+		.then(data => {
+			likeCount.textContent = data.likes_count;
+			if (data.liked) {
+				likeBtn.classList.add('liked');
+			} else {
+				likeBtn.classList.remove('liked');
+			}
+		})
+		.catch(error => console.error('Error:', error));
+	}
+    function toggleFollow(userId) {
+
+    fetch(`/toggle-follow/${userId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({ user_id: userId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            const followButton = document.getElementById(`follow-button-${userId}`);
+            const followersCount = document.getElementById('followers-count');
+            const followingCount = document.getElementById('following-count');
+
+            followButton.textContent = data.following ? 'Unfollow' : 'Follow';
+            if (followersCount) {
+                followersCount.textContent = data.followers_count;
+            }
+            if (followingCount) {
+                followingCount.textContent = data.following_count;
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
 </body>
 </html>

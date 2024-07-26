@@ -5,54 +5,11 @@ from django.http import JsonResponse
 from django.views.generic import View, ListView, DetailView, TemplateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from .models import Chat, Message
 from auth_system.models import CustomUser
+from .models import Chat, Message
+from notifications.models import Notification
 from post_system.mixins import *
 
-
-# @login_required
-# def chat_list(request):
-#     chats = request.user.chats.all()
-#     # Додатковий контекст для учасників чату
-#     chat_participants = []
-#     for chat in chats:
-#         participant = chat.participants.exclude(id=request.user.id).first()
-#         chat_participants.append({
-#             'chat': chat,
-#             'participant': participant
-#         })
-#     return render(request, 'chat/chat_list.html', {'chat_participants': chat_participants})
-
-# @login_required
-# def chat_detail(request, pk):
-#     chat = get_object_or_404(Chat, id=pk)
-#     if request.user not in chat.participants.all():
-#         return redirect('chat_list')
-
-#     if request.method == "POST":
-#         content = request.POST.get('content')
-#         if content:
-#             try:
-#                 message = Message.objects.create(
-#                     chat=chat,
-#                     user=request.user,
-#                     content=content
-#                 )
-#                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#                     return JsonResponse({
-#                         'success': True,
-#                         'username': request.user.username,
-#                         'content': message.content,
-#                         'avatar_url': request.user.avatar.url if request.user.avatar else "/static/images/default_avatar.jpg"
-#                     })
-#                 return redirect('chat_detail', chat_id=chat.pk)
-#             except Exception as e:
-#                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-#                     return JsonResponse({'success': False, 'error': str(e)})
-#                 raise e
-
-#     participant = chat.participants.exclude(id=request.user.pk).first()
-#     return render(request, 'chat/chat_detail.html', {'chat': chat, 'participant': participant})
 
 class ChatListView(LoginRequiredMixin, ListView):
     model = Chat
@@ -99,12 +56,23 @@ class ChatDetailView(LoginRequiredMixin, View):
                 user=request.user,
                 content=content
             )
+
+            # Create notification for the other participant
+            other_participant = chat.participants.exclude(id=request.user.pk).first()
+            if other_participant:
+                Notification.objects.create(
+                    user=other_participant,
+                    type='chat',
+                    chat=chat,
+                    message=f'{request.user.username} sent you a message in the chat.'
+                )
+
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
                     'username': request.user.username,
                     'content': message.content,
-                    'avatar_url': request.user.avatar.url if request.user.avatar else "/static/images/default_avatar.jpg"
+                    'avatar_url': request.user.avatar.url
                 })
             return redirect('chat:chat_detail', pk=chat.pk)
         except Exception as e:
@@ -133,19 +101,22 @@ class ChatMessagesView(LoginRequiredMixin, View):
 
 @login_required
 def start_chat(request, pk):
-    user_to = get_object_or_404(CustomUser, id=pk)
-    chat = Chat.objects.filter(participants=request.user).filter(participants=user_to).first()
+    user_to_chat = get_object_or_404(CustomUser, pk=pk)
+    chat = Chat.objects.filter(participants=request.user).filter(participants=user_to_chat).first()
     
-    if not chat:
-        chat = Chat.objects.create()
-        chat.participants.add(request.user, user_to)
-    
-    return redirect('chat_detail', chat_id=chat.pk)
+    if chat:
+        return redirect('chat:chat_detail', pk=chat.pk)
+    else:
+        new_chat = Chat.objects.create()
+        new_chat.participants.add(request.user, user_to_chat)
+        return redirect('chat:chat_detail', pk=new_chat.pk)
 
 
-class DeleteMessageView(LoginRequiredMixin, UserIsOwnerMixin,DeleteView):
-    model = Message
-    template_name = 'form.html'
-    
-    def get_success_url(self):
-        return reverse_lazy('chat:chat_detail', kwargs={"pk": self.kwargs['chat_id']})
+class DeleteMessageView(LoginRequiredMixin, View):
+    def delete(self, request, pk, *args, **kwargs):
+        message = get_object_or_404(Message, pk=pk)
+        if request.user == message.user:
+            message.delete()
+            return JsonResponse({'success': True, 'message': 'Message deleted successfully.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'You do not have permission to delete this message.'}, status=403)

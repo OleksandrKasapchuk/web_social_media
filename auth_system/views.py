@@ -5,8 +5,8 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from chat.models import *
 from .models import *
-
 
 def register_user(request):
     if request.user.is_authenticated:
@@ -35,16 +35,16 @@ def login_user(request):
     else:
         if request.method == "POST":
             username = request.POST.get("username")
-            password = request.POST.get('password')
+            password = request.POST.get("password")
 
             user = authenticate(username=username,password=password)
             
             if user is not None:
                 login(request, user)
-                # messages.success(request, ("You have been succesfully logged in"))
+                messages.success(request, ("You have been succesfully logged in"))
                 return redirect("post:index")
             else:
-                # messages.error(request, ("There was an error logging in, try again!"))
+                messages.error(request, ("There was an error logging in, try again!"))
                 return redirect("login")
             
         else:
@@ -53,14 +53,18 @@ def login_user(request):
 @login_required
 def logout_user(request):
     logout(request)
-    # messages.success(request, ("You were logged out"))
+    messages.success(request, ("You were logged out"))
     return redirect("post:index")
 
 def user_info(request, pk):
     try:
         user = CustomUser.objects.get(id=pk)
-        context = {'user': user, 'following': request.user.following.values_list('user_to_id', flat=True)}
+        context = {
+            'user': user, 
+            'following': request.user.following.values_list('user_to_id', flat=True),
+        }
         return render(request, 'auth_system/user_info.html', context=context)
+
     except CustomUser.DoesNotExist:
         return HttpResponse (
             "User doesn't exist!",
