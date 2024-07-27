@@ -41,7 +41,6 @@ def login_user(request):
             
             if user is not None:
                 login(request, user)
-                messages.success(request, ("You have been succesfully logged in"))
                 return redirect("post:index")
             else:
                 messages.error(request, ("There was an error logging in, try again!"))
