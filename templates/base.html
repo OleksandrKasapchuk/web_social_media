@@ -21,23 +21,23 @@
 				<h1><a href="{% url 'post:index' %}" class="logo">Tashkegram</a></h1>
 			</li>
 			<li class="sidebar-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
-				<a href="{% url 'post:index' %}"><span class="material-symbols-outlined">home</span>Home</a>
+				<a href="{% url 'post:index' %}"><span class="material-symbols-outlined">home</span><span class="sidebar-text">Home</span></a>
 			</li>
 			<li class="sidebar-item {% if request.resolver_match.url_name == 'add_post' %}active{% endif %}">
-				<a href="{% url 'post:add_post' %}"><span class="material-symbols-outlined">add_box</span>Add</a>
+				<a href="{% url 'post:add_post' %}"><span class="material-symbols-outlined">add_box</span><span class="sidebar-text">Add</span></a>
 			</li>
 			{% if not request.user.is_authenticated %}
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
-					<a href="{% url 'login' %}"><span class="material-symbols-outlined">login</span>Login</a>
+					<a href="{% url 'login' %}"><span class="material-symbols-outlined">login</span><span class="sidebar-text">Login</span></a>
 				</li>
 			{% else %}
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'chat_list' or request.resolver_match.url_name == 'chat_detail' %}active{% endif %}">
-					<a href="{% url 'chat:chat_list' %}"><span class="material-symbols-outlined">chat</span>Messages</a>
+					<a href="{% url 'chat:chat_list' %}"><span class="material-symbols-outlined">chat</span><span class="sidebar-text">Messages</span></a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
 					<a href="{% url 'notifications' request.user.pk %}">
 						<span class="material-symbols-outlined">notifications</span>
-						Notifications
+						<span class="sidebar-text">Notifications</span>
 						{% if unread_notification_count > 0 %}
 							<span class="new-notification-icon">{{ unread_notification_count }}</span>
 						{% endif %}
@@ -46,17 +46,18 @@
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'user-info' and request.user == user %}active{% endif %}">
 					<a href="{% url 'user-info' request.user.pk %}">
 						<img src="{{ request.user.avatar.url }}" class="sidebar-avatar">
-						Profile
+						<span class="sidebar-text">Profile</span>
 					</a>
 				</li>
 				<li class="sidebar-item {% if request.resolver_match.url_name == 'logout' %}active{% endif %}">
-					<a href="{% url 'logout' %}"><span class="material-symbols-outlined">logout</span>Logout</a>
+					<a href="{% url 'logout' %}"><span class="material-symbols-outlined">logout</span><span class="sidebar-text">Logout</span></a>
 				</li>
 			{% endif %}
 		</ul>
 	</nav>
+	
 	{% block header %}{% endblock %}
-	<main class="d-flex flex-column">
+	<main class="d-flex flex-column main-index">
 		{% block content %}
 		{% endblock %}
 	</main>

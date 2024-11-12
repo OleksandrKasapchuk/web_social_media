@@ -12,7 +12,7 @@ class Post(models.Model):
 		return f"{self.user} - {self.date_published}"
 
 	class Meta:
-		ordering = ('date_published',)
+		ordering = ('-date_published',)
 
 
 class Comment(models.Model):
@@ -25,7 +25,7 @@ class Comment(models.Model):
 		return f"{self.user} - {self.date_published}"
 	
 	class Meta:
-		ordering = ('date_published',)
+		ordering = ('-date_published',)
 
 
 class Like(models.Model):

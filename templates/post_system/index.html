@@ -3,8 +3,8 @@
 
 {% block header %}
 <header class="home-header d-flex gap-3">
-    <span onclick="filterPosts('for_you')" class="pointer {% if category == 'for_you' %}active {% else %} gray-text {% endif %}">Для вас</span>
-    <span onclick="filterPosts('following')" class="pointer {% if category == 'following' %}active {% else %} gray-text {% endif %}">Ви підписані</span>
+    <span onclick="filterPosts('for_you')" class="pointer {% if category == 'for_you' %}active {% else %} gray-text {% endif %}">For you</span>
+    <span onclick="filterPosts('following')" class="pointer {% if category == 'following' %}active {% else %} gray-text {% endif %}">Followed</span>
 </header>
 {% endblock %}
 

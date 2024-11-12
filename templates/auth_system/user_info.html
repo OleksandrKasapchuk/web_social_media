@@ -3,7 +3,7 @@
 {% block content %}
 
 <article class="main-container d-flex flex-column">
-    <section class="d-flex gap3 ps-4">
+    <section class="d-flex gap3 ps-4 profile-header">
         <img src="{{ user.avatar.url }}" class="profile-avatar">
         <article class="d-flex flex-column gap">
             <article class="d-flex gap">
@@ -24,9 +24,6 @@
                 <li><a href="{% url 'post:get-following' user.pk %}"><span id="following-count"><b>{{ user.following.count }}</b></span> following</a></li>
             </ul>
             <b>{{user.first_name}} {{user.last_name}}</b>
-            {% if user.bio %}
-                <p>{{user.bio}}</p>
-            {% endif %} 
             
         </article>
     </section>
