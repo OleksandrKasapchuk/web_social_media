@@ -21,9 +21,9 @@ class Index(ListView):
 
 		if category == 'following' and self.request.user.is_authenticated:
 			following_users = Subscription.objects.filter(user_from=self.request.user).values_list('user_to', flat=True)
-			context['-posts'] = Post.objects.filter(user__in=following_users)
+			context['posts'] = Post.objects.filter(user__in=following_users)
 		else:
-			context['-posts'] = Post.objects.all()
+			context['posts'] = Post.objects.all()
 		context['category'] = category
 
 		return context
