@@ -81,6 +81,7 @@ WSGI_APPLICATION = 'social_media.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 import sys
+import dj_database_url
 
 if 'collectstatic' in sys.argv:
     DATABASES = {
