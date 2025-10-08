@@ -188,7 +188,7 @@ li > a {
     border-radius: 17px;
 	padding: 10px 20px;
 	margin-bottom: 5px;
-	width:min-content;
+	max-width: 50vw;
 }
 
 .delete-btn {
